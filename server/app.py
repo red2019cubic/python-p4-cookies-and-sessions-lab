@@ -22,13 +22,51 @@ def clear_session():
 
 @app.route('/articles')
 def index_articles():
+    articles = Article.query.all().to_dict()
+    response = make_response(articles, 200)
+    return response
+#*******************************************************
 
-    pass
+# @app.route('/sessions/<string:key>', methods=['GET'])
+# def show_session(key):
+
+#     session["hello"] = session.get("hello") or "World"
+#     session["goodnight"] = session.get("goodnight") or "Moon"
+
+#     response = make_response(jsonify({
+#         'session': {
+#             'session_key': key,
+#             'session_value': session[key],
+#             'session_accessed': session.accessed,
+#         },
+#         'cookies': [{cookie: request.cookies[cookie]}
+#             for cookie in request.cookies],
+#     }), 200)
+
+#     response.set_cookie('mouse', 'Cookie')
+
+#     return response
+#######################################################
+
 
 @app.route('/articles/<int:id>')
 def show_article(id):
-
-    pass
+    article = Article.query.filter_by(id=id).first()
+    print(session.get('page_views'))
+    
+    if session.get('page_views'):
+        session["page_views"] += 1
+    else:
+        session["page_views"] = 1
+        
+    if session.get('page_views') > 3:
+        response = make_response(jsonify({
+           "message" : 'Maximum pageview limit reached'
+        }), 401) 
+    else:
+        response = make_response(article.to_dict(), 200)
+    
+    return response 
 
 if __name__ == '__main__':
     app.run(port=5555)
